@@ -15,6 +15,7 @@ import (
 
 var (
 	flagSource = flag.String("source", "", "go source file")
+	flagVersion = flag.Bool("version", false, "print the version and exit")
 	fset       *token.FileSet
 )
 
@@ -30,6 +31,11 @@ func main() {
 	log.SetPrefix("struct2oas: ")
 	flag.Usage = Usage
 	flag.Parse()
+
+	if *flagVersion {
+		fmt.Println("struct2oas v0.1.0")
+		os.Exit(0)
+	}
 
 	log.Printf("Read source %q\n", *flagSource)
 	fset = token.NewFileSet()
