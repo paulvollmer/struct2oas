@@ -146,6 +146,7 @@ func (g *Generator) WriteFile() {
 	}
 }
 
+// https://swagger.io/docs/specification/data-models/data-types/#array
 func TypeToSchema(e ast.Expr) (t string, f string) {
 	switch e.(*ast.Ident).Name {
 	case "string":
