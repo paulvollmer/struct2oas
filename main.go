@@ -10,11 +10,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"strings"
 )
 
 var (
-	flagSource  = flag.String("source", "", "go source file")
+	flagSource  = flag.String("source", "", "go source file or folder")
 	flagLeftpad = flag.String("leftpad", "", "left padding characters")
 	flagVersion = flag.Bool("version", false, "print the version and exit")
 	fset        *token.FileSet
@@ -38,25 +39,57 @@ func main() {
 		os.Exit(0)
 	}
 
-	log.Printf("Read source %q\n", *flagSource)
-	fset = token.NewFileSet()
-	node, err := parser.ParseFile(fset, *flagSource, nil, parser.ParseComments)
+	process(*flagSource)
+}
+
+func process(name string) {
+	// check if source is a file or folder
+	fileInfo, err := os.Stat(name)
 	if err != nil {
-		log.Println("Error parsing source: " + *flagSource)
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	switch mode := fileInfo.Mode(); {
+	case mode.IsDir():
+		processDir(name)
+	case mode.IsRegular():
+		processFile(name)
+	}
+}
+
+func processDir(name string) {
+	files, err := ioutil.ReadDir(name)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	for i := 0; i < len(files); i++ {
+		if path.Ext(files[i].Name()) == ".go" {
+			process(path.Join(name, files[i].Name()))
+		}
+	}
+}
+
+func processFile(name string) {
+	log.Printf("Read source %q\n", name)
+	fset = token.NewFileSet()
+	node, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
+	if err != nil {
+		log.Println("Error parsing source: " + name)
 		os.Exit(255)
 	}
 
+	g := Generator{}
 	ast.Inspect(node, func(n ast.Node) bool {
 		switch t := n.(type) {
 		case *ast.TypeSpec:
 			if t.Name.IsExported() {
-				g := Generator{}
 				g.Generate(t)
-				g.WriteFile()
 			}
 		}
 		return true
 	})
+	g.WriteFile()
 }
 
 type Generator struct {
