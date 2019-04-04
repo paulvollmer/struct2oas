@@ -132,10 +132,12 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 				if ty.X.(*ast.Ident).Name == "time" && ty.Sel.Name == "Time" {
 					g.Printf("      type: \"string\"\n")
 					g.Printf("      format: \"date-time\"\n")
-					description := strings.Replace(s.Fields.List[i].Doc.Text(), "\n", "", -1)
-					if description != "" {
-						g.Printf("      description: %q\n", description)
-					}
+				} else {
+					g.Printf("      type: \"object\"\n")
+				}
+				description := strings.Replace(s.Fields.List[i].Doc.Text(), "\n", "", -1)
+				if description != "" {
+					g.Printf("      description: %q\n", description)
 				}
 
 			case *ast.ArrayType:
@@ -146,6 +148,9 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 				g.Printf("      type: \"array\"\n")
 				g.Printf("      items:\n")
 				typ, format := TypeToSchema(ty.Elt)
+				if typ == "" {
+					typ = "object"
+				}
 				g.Printf("        type: %q\n", typ)
 				if format != "" {
 					g.Printf("        format: %q\n", format)
@@ -160,12 +165,15 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 					g.Printf("      description: %q\n", description)
 				}
 
-				// case *ast.StructType:
-				// 	g.Printf("      type: \"object\"\n")
-				// 	description := strings.Replace(s.Fields.List[i].Doc.Text(), "\n", "", -1)
-				// 	if description != "" {
-				// 		g.Printf("      description: %q\n", description)
-				// 	}
+			case *ast.StructType:
+				g.Printf("      type: \"object\"\n")
+				description := strings.Replace(s.Fields.List[i].Doc.Text(), "\n", "", -1)
+				if description != "" {
+					g.Printf("      description: %q\n", description)
+				}
+
+			default:
+				g.Printf("      type: \"object\"\n")
 			}
 			// ast.Print(fset, s.Fields.List[i].Type)
 		}
@@ -183,6 +191,7 @@ func (g *Generator) WriteFile() {
 func TypeToSchema(e ast.Expr) (t string, f string) {
 	switch e.(type) {
 	case *ast.Ident:
+
 		switch e.(*ast.Ident).Name {
 		case "string":
 			t = "string"
@@ -212,10 +221,19 @@ func TypeToSchema(e ast.Expr) (t string, f string) {
 			t = "number"
 			f = "double"
 			break
+		default:
+			t = "object"
+			f = ""
+			break
 		}
+
 	case *ast.MapType:
 		t = "object"
 		f = ""
+	default:
+		t = "object"
+		f = ""
+		break
 	}
 	return
 }
