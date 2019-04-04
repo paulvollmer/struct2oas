@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Println("struct2oas v0.1.0")
+		fmt.Println("struct2oas v1.0.0")
 		os.Exit(0)
 	}
 
