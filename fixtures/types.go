@@ -41,4 +41,9 @@ type Types struct {
 
 	// TheMapStringInt represent an object
 	TheMapStringInt map[string]int `json:"the_map_string_int"`
+
+	// TheMapStringInterface represent an object
+	TheMapStringInterface map[string]interface{} `json:"the_map_string_interface"`
+
+	TheMapStringInterfaceArray []map[string]interface{} `json:"the_map_string_interface_array"`
 }

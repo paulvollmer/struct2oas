@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Println("struct2oas v1.0.0")
+		fmt.Println("struct2oas v1.0.1")
 		os.Exit(0)
 	}
 
@@ -181,35 +181,41 @@ func (g *Generator) WriteFile() {
 
 // https://swagger.io/docs/specification/data-models/data-types/#array
 func TypeToSchema(e ast.Expr) (t string, f string) {
-	switch e.(*ast.Ident).Name {
-	case "string":
-		t = "string"
+	switch e.(type) {
+	case *ast.Ident:
+		switch e.(*ast.Ident).Name {
+		case "string":
+			t = "string"
+			f = ""
+			break
+		case "bool":
+			t = "boolean"
+			f = ""
+			break
+		case "int", "int8", "int16", "uint", "uint8", "uint16", "byte", "rune":
+			t = "integer"
+			f = ""
+			break
+		case "int32", "uint32":
+			t = "integer"
+			f = "int32"
+			break
+		case "int64", "uint64":
+			t = "integer"
+			f = "int64"
+			break
+		case "float32":
+			t = "number"
+			f = "float"
+			break
+		case "float64", "complex64", "complex128":
+			t = "number"
+			f = "double"
+			break
+		}
+	case *ast.MapType:
+		t = "object"
 		f = ""
-		break
-	case "bool":
-		t = "boolean"
-		f = ""
-		break
-	case "int", "int8", "int16", "uint", "uint8", "uint16", "byte", "rune":
-		t = "integer"
-		f = ""
-		break
-	case "int32", "uint32":
-		t = "integer"
-		f = "int32"
-		break
-	case "int64", "uint64":
-		t = "integer"
-		f = "int64"
-		break
-	case "float32":
-		t = "number"
-		f = "float"
-		break
-	case "float64", "complex64", "complex128":
-		t = "number"
-		f = "double"
-		break
 	}
 	return
 }
