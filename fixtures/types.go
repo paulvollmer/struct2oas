@@ -1,4 +1,4 @@
-package model1
+package fixtures
 
 import "time"
 

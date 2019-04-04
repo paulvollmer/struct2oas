@@ -1,4 +1,4 @@
-package model1
+package fixtures
 
 type Color struct {
 	// Name of the color
