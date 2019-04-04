@@ -15,3 +15,6 @@ test-folder:
 
 clean:
 	rm -f *.yml
+
+release:
+	gox
