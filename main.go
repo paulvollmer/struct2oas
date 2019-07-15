@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+const version = "1.1.0"
+
 var (
 	flagSource  = flag.String("source", "", "go source file or folder")
 	flagLeftpad = flag.String("leftpad", "", "left padding characters")
@@ -35,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Println("struct2oas v1.0.2")
+		fmt.Printf("struct2oas v%s\n", version)
 		os.Exit(0)
 	}
 
@@ -206,7 +208,7 @@ func TypeToSchema(e ast.Expr) (t string, f string) {
 			t = "boolean"
 			f = ""
 			break
-		case "int", "int8", "int16", "uint", "uint8", "uint16", "byte", "rune":
+		case "int", "int8", "int16", "uint", "uint8", "uint16", "uintptr", "byte", "rune":
 			t = "integer"
 			f = ""
 			break
@@ -227,7 +229,7 @@ func TypeToSchema(e ast.Expr) (t string, f string) {
 			f = "double"
 			break
 		default:
-			t = "object"
+			t = "#/components/schemas/" + e.(*ast.Ident).Name
 			f = ""
 			break
 		}

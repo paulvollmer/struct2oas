@@ -10,4 +10,5 @@ install:
   - go get -v ./...
 script:
   - make lint
+  - make build
   - make test
