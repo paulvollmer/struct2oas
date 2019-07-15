@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+const version = "1.1.0"
+
 var (
 	flagSource  = flag.String("source", "", "go source file or folder")
 	flagLeftpad = flag.String("leftpad", "", "left padding characters")
@@ -35,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVersion {
-		fmt.Println("struct2oas v1.0.2")
+		fmt.Printf("struct2oas v%s\n", version)
 		os.Exit(0)
 	}
 
@@ -92,15 +94,18 @@ func processFile(name string) {
 	g.WriteFile()
 }
 
+// Generator to generate the sourcecode
 type Generator struct {
 	buf  bytes.Buffer // Accumulated output.
 	Name string
 }
 
+// Printf the source to buf
 func (g *Generator) Printf(format string, args ...interface{}) {
 	fmt.Fprintf(&g.buf, *flagLeftpad+format, args...)
 }
 
+// Generate the sourcecode
 func (g *Generator) Generate(t *ast.TypeSpec) {
 	g.Name = t.Name.String()
 	log.Println("Generate", t.Name)
@@ -180,6 +185,7 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 	}
 }
 
+// WriteFile write the sourcecode to a file
 func (g *Generator) WriteFile() {
 	err := ioutil.WriteFile(g.Name+".yml", g.buf.Bytes(), 0644)
 	if err != nil {
@@ -187,7 +193,8 @@ func (g *Generator) WriteFile() {
 	}
 }
 
-// https://swagger.io/docs/specification/data-models/data-types/#array
+// TypeToSchema return the type and format for an ast ident
+// see https://swagger.io/docs/specification/data-models/data-types/#array
 func TypeToSchema(e ast.Expr) (t string, f string) {
 	switch e.(type) {
 	case *ast.Ident:
@@ -201,7 +208,7 @@ func TypeToSchema(e ast.Expr) (t string, f string) {
 			t = "boolean"
 			f = ""
 			break
-		case "int", "int8", "int16", "uint", "uint8", "uint16", "byte", "rune":
+		case "int", "int8", "int16", "uint", "uint8", "uint16", "uintptr", "byte", "rune":
 			t = "integer"
 			f = ""
 			break
@@ -222,7 +229,7 @@ func TypeToSchema(e ast.Expr) (t string, f string) {
 			f = "double"
 			break
 		default:
-			t = "object"
+			t = "#/components/schemas/" + e.(*ast.Ident).Name
 			f = ""
 			break
 		}
