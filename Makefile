@@ -1,6 +1,16 @@
+all: lint build
+
+lint:
+	@golint
+
 build:
 	@go fmt
 	@go build
+
+clean:
+	rm -f *.yml
+
+.PHONY: lint build clean
 
 test: build test-files clean test-folder
 
@@ -13,8 +23,9 @@ test-files:
 test-folder:
 	./struct2oas -leftpad "  " -source fixtures
 
-clean:
-	rm -f *.yml
+.PHONY: test test-files test-folder
 
 release:
 	gox
+
+.PHONY: release
