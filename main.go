@@ -146,10 +146,6 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 				}
 
 			case *ast.ArrayType:
-				// log.Printf("----------- TODO %+v\n", ty.(*ast.ArrayType).Name)
-				// ast.Print(fset, ty)
-				// log.Println("TYYYYY", ty, TypeToSchema(s.Fields.List[i].Type))
-
 				g.Printf("      type: \"array\"\n")
 				g.Printf("      items:\n")
 				typ, format := TypeToSchema(ty.Elt)
@@ -160,8 +156,6 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 				if format != "" {
 					g.Printf("        format: %q\n", format)
 				}
-				// g.Printf("        type: %q\n", ty.Elt.(*ast.Ident).Name)
-				// g.Printf("        properties:\n")
 
 			case *ast.MapType:
 				g.Printf("      type: \"object\"\n")
@@ -180,7 +174,6 @@ func (g *Generator) Generate(t *ast.TypeSpec) {
 			default:
 				g.Printf("      type: \"object\"\n")
 			}
-			// ast.Print(fset, s.Fields.List[i].Type)
 		}
 	}
 }
