@@ -7,8 +7,10 @@ env:
   - GO111MODULE=on
 install:
   - go get -u golang.org/x/lint/golint
+  - go get -u github.com/mitchellh/gox
   - go get -v ./...
 script:
   - make lint
   - make build
   - make test
+  - make release
